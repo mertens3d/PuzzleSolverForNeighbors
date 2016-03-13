@@ -7,3 +7,6 @@ C:\Users\gregory\Documents\Visual Studio 2013\Projects\PuzzleSolverForNeighbors\
 C:\Users\gregory\Documents\Visual Studio 2013\Projects\PuzzleSolverForNeighbors\PuzzleSolverForNeighbors\bin\Debug\PuzzleSolverForNeighbors.pdb
 C:\Users\gregory\Documents\Visual Studio 2013\Projects\PuzzleSolverForNeighbors\PuzzleSolverForNeighbors\obj\Debug\PuzzleSolverForNeighbors.exe
 C:\Users\gregory\Documents\Visual Studio 2013\Projects\PuzzleSolverForNeighbors\PuzzleSolverForNeighbors\obj\Debug\PuzzleSolverForNeighbors.pdb
+C:\Users\gregory\Documents\GitHub\PuzzleSolverForNeighbors\PuzzleSolverForNeighbors\bin\Debug\PuzzleSolverForNeighbors.exe.config
+C:\Users\gregory\Documents\GitHub\PuzzleSolverForNeighbors\PuzzleSolverForNeighbors\obj\Debug\PuzzleSolverForNeighbors.exe
+C:\Users\gregory\Documents\GitHub\PuzzleSolverForNeighbors\PuzzleSolverForNeighbors\obj\Debug\PuzzleSolverForNeighbors.pdb
