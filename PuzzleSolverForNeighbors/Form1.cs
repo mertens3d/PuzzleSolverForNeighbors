@@ -37,13 +37,13 @@ namespace PuzzleSolverForNeighbors
 
         private void button1_Click(object sender, EventArgs e)
         {
-            AllBoxesMan.FindSolutionInit();
+            AllBoxesMan.InitGameBoard();
         }
 
 
         private void button2_Click(object sender, EventArgs e)
         {
-            AllBoxesMan.AAnalyzeAdjacent();
+            AllBoxesMan.Analyze_A_Adjacent();
             //   this.Invalidate();
             //   this.Update();
             // this.Refresh();
@@ -52,7 +52,8 @@ namespace PuzzleSolverForNeighbors
         private void button3_Click(object sender, EventArgs e)
         {
 
-            AllBoxesMan.NAnalyzeEntireColumns();
+            AllBoxesMan.Analyze_B_CleanKnownsFromEntireColumn();
+
         }
 
         private void testDataA(object sender, EventArgs e)
@@ -63,21 +64,26 @@ namespace PuzzleSolverForNeighbors
 
         private void button5_Click(object sender, EventArgs e)
         {
-            AllBoxesMan.AAnalyzeAdjacent();
-
-            AllBoxesMan.BAnalyzeRunsOfThreeOrMore();
-            AllBoxesMan.MAnalyzeEntireRows();
-            AllBoxesMan.NAnalyzeEntireColumns();
+            AllBoxesMan.Analyze_A_Adjacent();
+            AllBoxesMan.Analyze_B_CleanKnownsFromEntireColumn();
+            AllBoxesMan.Analyze_C_CleanKnownsFromEntireRows();
+            AllBoxesMan.Analyze_D_Solos();
+            AllBoxesMan.Analyze_E_Neighborhoods();
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
-            AllBoxesMan.MAnalyzeEntireRows();
+            AllBoxesMan.Analyze_C_CleanKnownsFromEntireRows();
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
-            AllBoxesMan.BAnalyzeRunsOfThreeOrMore();
+            AllBoxesMan.Analyze_E_Neighborhoods();
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            AllBoxesMan.Analyze_D_Solos();
         }
     }
 }

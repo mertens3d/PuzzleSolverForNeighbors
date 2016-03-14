@@ -23,7 +23,7 @@ namespace PuzzleSolverForNeighbors
         }
         private void addChildControlsToPanel()
         {
-            ControlAssociatedGridPanel.Controls.Add(controlAssociatedTextBox);
+            ControlAssociatedGridPanel.Controls.Add(ControlAssociatedTextBox);
 
             ControlAssociatedGridPanel.Controls.Add(RelationshipToUnder.ControlAssociatedRelationshipLabel);
             ControlAssociatedGridPanel.Controls.Add(RelationshipToRight.ControlAssociatedRelationshipLabel);
@@ -54,21 +54,21 @@ namespace PuzzleSolverForNeighbors
         }
         private void buildAssociatedNumeric()
         {
-            controlAssociatedTextBox = new NumericUpDown
+            ControlAssociatedTextBox = new NumericUpDown
             {
                 Text = string.Empty,
                 Font = new Font("Microsoft Sans Serif", 24F, FontStyle.Bold, GraphicsUnit.Point, ((byte)(0))),
                 // BackColor = Color.Green
             };
-            controlAssociatedTextBox.TextChanged += eventTextChanged;
+            ControlAssociatedTextBox.TextChanged += eventTextChanged;
 
 
-            controlAssociatedTextBox.SetBounds(0, 0, Params.BoxHeight, Params.BoxHeight);
+            ControlAssociatedTextBox.SetBounds(0, 0, Params.BoxHeight, Params.BoxHeight);
 
             //  AssociatedTextBox.BackColor = Color.Transparent;
-            ControlAssociatedGridPanel.Controls.Add(controlAssociatedTextBox);
+            ControlAssociatedGridPanel.Controls.Add(ControlAssociatedTextBox);
 
-            controlAssociatedTextBox.ValueChanged += BoxValueChanged;
+            // ControlAssociatedTextBox.ValueChanged += BoxValueChanged;
         }
 
         private void BoxValueChanged(object sender, EventArgs e)
@@ -76,6 +76,6 @@ namespace PuzzleSolverForNeighbors
 
         }
 
-       
+
     }
 }

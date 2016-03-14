@@ -46,6 +46,10 @@
   <ItemGroup>
     <Compile Include="AllBoxesManager.cs" />
     <Compile Include="BuildOneGridPanel.cs" />
+    <Compile Include="NeighborHood.cs" />
+    <Compile Include="ValidSequenceAscDesc.cs" />
+    <Compile Include="Sequence3Tools.cs" />
+    <Compile Include="LocIdx.cs" />
     <Compile Include="OneHorizontalRelationship.cs" />
     <Compile Include="OneRelationship.cs" />
     <Compile Include="OneTestPrimerData.cs" />

@@ -31,6 +31,7 @@ namespace PuzzleSolverForNeighbors
             //AllVerticalRelationships = new List<OneVerticalRelationship>();
             //AllHorizontalRelationships = new List<OneHorizontalRelationship>();
             MaxColAndRowIdx = maxColAndRowIdx;
+            populateAllNeighborHoods();
 
             buildAllBoxes();
         }
@@ -39,16 +40,118 @@ namespace PuzzleSolverForNeighbors
 
         #region Methods
 
-
-
-
-
-        public void FindSolutionInit()
+        public void Analyze_A_Adjacent()
         {
-            initCurrentAllowedValues();
+            AllBoxList.ForEach(x => x.FindRightAndBelow());
+            AllBoxList.ForEach(x => x.RelationshipCompare());
+            redrawAll();
+        }
+
+        public void Analyze_B_CleanKnownsFromEntireColumn()
+        {
+            for (int colIdx = 0; colIdx < MaxColAndRowIdx; colIdx++)
+            {
+                cleanOutKnownValuesFromRun(runForCol(colIdx));
+            }
+            redrawAll();
+        }
+
+        public void Analyze_C_CleanKnownsFromEntireRows()
+        {
+            for (int rowIdx = 0; rowIdx < MaxColAndRowIdx; rowIdx++)
+            {
+                cleanOutKnownValuesFromRun(runForRow(rowIdx));
+            }
+            redrawAll();
+        }
+
+        public void Analyze_D_Solos()
+        {
+            for (int idx = 0; idx < MaxColAndRowIdx; idx++)
+            {
+                //col
+                analyzeSoloInRun(runForRow(idx));
+                //row
+                analyzeSoloInRun(runForCol(idx));
+            }
+
+            redrawAll();
+        }
+
+        private readonly List<NeighborHood> allNeighborHoods;
+
+        private void populateAllNeighborHoods()
+        {
+            for (int idx = 0; idx < MaxColAndRowIdx; idx++)
+            {
+                List<OneGridPanel> candidateRunRow = runForRow(idx);
+
+                //horizontal
+                int horIdx = 0;
+                while (horIdx < MaxColAndRowIdx - Params.MinNeighborhoodCount)
+                {
+                    NeighborHood candidateHood = new NeighborHood(horIdx, candidateRunRow, RelationshipType.horizontal);
+                    if (candidateHood.NeighborhoodCount >= Params.MinNeighborhoodCount)
+                    {
+                        allNeighborHoods.Add(candidateHood);
+                        horIdx = horIdx + candidateHood.NeighborhoodCount;
+                    }
+                }
+
+                //vertical
+                int vertIdx = 0;
+                while (vertIdx < MaxColAndRowIdx - Params.MinNeighborhoodCount)
+                {
+                    NeighborHood candidateHood = new NeighborHood(vertIdx, candidateRunRow, RelationshipType.vertical);
+                    if (candidateHood.NeighborhoodCount >= Params.MinNeighborhoodCount)
+                    {
+                        allNeighborHoods.Add(candidateHood);
+                        vertIdx = vertIdx + candidateHood.NeighborhoodCount;
+                    }
+                }
+
+
+
+                //int seqLength = getIdxOfSequenceEnd(candidateRunRow, vertIdx, relationshipIsDown);
+                //if (seqLength > seqLength)
+                //{
+                //    List<OneGridPanel> trimmedCandidteRun = candidateRunRow.Skip(vertIdx).Take(seqLength);
+                //    fixAllowedValuesInSequence(trimmedCandidteRun, relationshipIsDown);
+                //}
+
+            }
+        }
+
+
+        public void Analyze_E_Neighborhoods()
+        {
+
+            allNeighborHoods.ForEach(x => x.AnalyzeHood());
 
         }
 
+        private void fixAllowedValuesInSequence(List<OneGridPanel> candidateRun, bool relationshipIsDown)
+        {
+            //we are here because we have a sequence the is 3 or more
+            //that means that the interior elements of the sequence must be one less than the max of neighbor
+            //and one more than the min of the neighbor
+
+       
+
+
+        }
+
+
+
+        //public void FindSolutionAll()
+        //{
+        //    Analyze_A_Adjacent();
+        //    Analyze_E_RunsOfThreeOrMore();
+
+
+        //    Analyze_C_CleanKnownsFromEntireRows();
+        //    Analyze_B_CleanKnownsFromEntireColumn();
+        //}
 
 
         //public void PutBoxesOnScreen(Panel form1)
@@ -63,26 +166,30 @@ namespace PuzzleSolverForNeighbors
         public OneGridPanel GetBoxToTheRight(OneGridPanel oneGridPanel)
         {
             return AllBoxList
-                .Where(x => x.RowIdx == oneGridPanel.RowIdx)
-                .FirstOrDefault(x => x.ColIdx == oneGridPanel.ColIdx + 1);
+                .Where(x => x.LocIdx.RowIdx == oneGridPanel.LocIdx.RowIdx)
+                .FirstOrDefault(x => x.LocIdx.ColIdx == oneGridPanel.LocIdx.ColIdx + 1);
         }
 
         public OneGridPanel GetBoxUnder(OneGridPanel oneGridPanel)
         {
             return AllBoxList
-                .Where(x => x.ColIdx == oneGridPanel.ColIdx)
-                .FirstOrDefault(x => x.RowIdx == oneGridPanel.RowIdx + 1);
+                .Where(x => x.LocIdx.ColIdx == oneGridPanel.LocIdx.ColIdx)
+                .FirstOrDefault(x => x.LocIdx.RowIdx == oneGridPanel.LocIdx.RowIdx + 1);
+        }
+
+        public void InitGameBoard()
+        {
+            initCurrentAllowedValues();
         }
 
         public void PopulateTestData(List<OneTestPrimerData> testDataList)
         {
-            FindSolutionInit();
             AllBoxList.ForEach(x => x.SetToDefault());
             foreach (OneTestPrimerData oneTestPrimerData in testDataList)
             {
                 OneGridPanel oneGridPanel = AllBoxList
-                    .Where(x => x.ColIdx == oneTestPrimerData.ColIdx)
-                    .FirstOrDefault(x => x.RowIdx == oneTestPrimerData.RowIdx);
+                    .Where(x => x.LocIdx.ColIdx == oneTestPrimerData.ColIdx)
+                    .FirstOrDefault(x => x.LocIdx.RowIdx == oneTestPrimerData.RowIdx);
 
                 if (oneGridPanel != null)
                 {
@@ -90,6 +197,7 @@ namespace PuzzleSolverForNeighbors
                     {
                         oneGridPanel.AllowedValues.Clear();
                         oneGridPanel.AllowedValues.Add(oneTestPrimerData.Value);
+                        oneGridPanel.ControlAssociatedTextBox.Text = oneTestPrimerData.Value.ToString();
                     }
 
                     if (oneTestPrimerData.PrimeRelation == PrimeRelation.right)
@@ -103,7 +211,28 @@ namespace PuzzleSolverForNeighbors
                     }
                 }
             }
+            InitGameBoard();
             redrawAll();
+        }
+
+        private void analyzeSoloInRun(List<OneGridPanel> targetList)
+        {
+            //count up all of the numbers that appear only once
+            //  List<int> solos = new List<int>();
+            for (int needle = 0; needle < MaxColAndRowIdx; needle++)
+            {
+
+                List<OneGridPanel> foundInList = targetList
+                    .Where(x => x.AllowedValues.Contains(needle))
+                    .ToList();
+
+
+                if (foundInList.Count() == 1)
+                {
+                    // solos.Add(needle);
+                    foundInList.First().KnownValue = needle;
+                }
+            }
         }
 
         private void buildAllBoxes()
@@ -119,7 +248,8 @@ namespace PuzzleSolverForNeighbors
             {
                 for (int rowIdx = 0; rowIdx < MaxColAndRowIdx; rowIdx++)
                 {
-                    OneGridPanel oneGridPanel = new OneGridPanel(rowIdx, colIdx, this, MaxColAndRowIdx);
+                    LocIdx locIdx = new LocIdx(colIdx, rowIdx);
+                    OneGridPanel oneGridPanel = new OneGridPanel(locIdx, this, MaxColAndRowIdx);
 
                     AllBoxList.Add(oneGridPanel);
 
@@ -139,23 +269,24 @@ namespace PuzzleSolverForNeighbors
                         Location = point,
                         Width = 20,
                         Height = 20,
+
                         // BackColor = Color.Pink
                     });
                 }
             }
         }
 
-        public void BAnalyzeRunsOfThreeOrMore()
+        private void cleanOutKnownValuesFromRun(List<OneGridPanel> runList)
         {
-            //we want to look for groups of three that are neigbors
-            //if found, then the middle one must be
-        }
+            List<int> knownValuesInThisRun = runList
+                .Where(x => x.ValueIsKnown)
+                .Select(x => x.KnownValue)
+                .ToList();
 
-
-        public void AAnalyzeAdjacent()
-        {
-            AllBoxList.ForEach(x => x.FindRightAndBelow());
-            AllBoxList.ForEach(x => x.RelationshipCompare());
+            runList
+                .Where(x => !x.ValueIsKnown)
+                .ToList()
+                .ForEach(x => x.RemoveValues(knownValuesInThisRun));
         }
 
         private void initCurrentAllowedValues()
@@ -167,48 +298,17 @@ namespace PuzzleSolverForNeighbors
         {
             AllBoxList.ForEach(x => x.RefreshEntireBox());
         }
-        public void MAnalyzeEntireRows()
-        {
-            for (int rowIdx = 0; rowIdx < MaxColAndRowIdx; rowIdx++)
-            {
-                List<int> knownValuesInThisRow = AllBoxList
-                    .Where(x => x.RowIdx == rowIdx)
-                    .Where(x => x.ValueIsKnown)
-                    .Select(x => x.KnownValue)
-                    .ToList();
 
-                AllBoxList
-                    .Where(x => x.RowIdx == rowIdx)
-                    .ToList()
-                    .ForEach(x => x.RemoveValues(knownValuesInThisRow));
-            }
-        }
-        public void NAnalyzeEntireColumns()
+        private List<OneGridPanel> runForCol(int idx)
         {
-            for (int colIdx = 0; colIdx < MaxColAndRowIdx; colIdx++)
-            {
-                List<int> knownValuesInThisColumn = AllBoxList
-                    .Where(x => x.ColIdx == colIdx)
-                    .Where(x => x.ValueIsKnown)
-                    .Select(x => x.KnownValue)
-                    .ToList();
-
-                AllBoxList
-                    .Where(x => x.ColIdx == colIdx)
-                    .ToList()
-                    .ForEach(x => x.RemoveValues(knownValuesInThisColumn));
-            }
+            return AllBoxList.Where(x => x.LocIdx.ColIdx == idx).ToList();
         }
+
+        private List<OneGridPanel> runForRow(int idx)
+        {
+            return AllBoxList.Where(x => x.LocIdx.RowIdx == idx).ToList();
+        }
+
         #endregion
-
-        public void FindSolutionAll()
-        {
-            AAnalyzeAdjacent();
-            BAnalyzeRunsOfThreeOrMore();
-
-
-            MAnalyzeEntireRows();
-            NAnalyzeEntireColumns();
-        }
     }
 }

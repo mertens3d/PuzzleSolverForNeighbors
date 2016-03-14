@@ -27,5 +27,6 @@ namespace PuzzleSolverForNeighbors
 
         public static int RelationshipLabelHeightWhenHorizontal = BoxHeight;
         public static int RelationshipLabelWidthWhenVertical = BoxWidth;
+        public static int MinNeighborhoodCount = 3;
     }
 }

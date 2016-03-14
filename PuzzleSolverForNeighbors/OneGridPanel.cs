@@ -9,21 +9,19 @@ namespace PuzzleSolverForNeighbors
     {
         #region Fields
 
-        public List<int> AllowedValues;
-        public int RowIdx;
-        private OneGridPanel gridPanelRight;
-        private OneGridPanel gridPanelUnder;
-
+        public List<int> AllowedValues = new List<int>();
+        public OneGridPanel GridPanelRight { get; private set; }
+        public OneGridPanel GridPanelUnder { get; private set; }
 
         #endregion
 
         #region Properties
 
         public AllBoxesManager PtrToAllBoxesManager { get; private set; }
-        private NumericUpDown controlAssociatedTextBox { get; set; }
+        public NumericUpDown ControlAssociatedTextBox { get; set; }
         private TextBox controlElligibleValuesLabel { get; set; }
         public Panel ControlAssociatedGridPanel { get; set; }
-        public int ColIdx { get; set; }
+        public LocIdx LocIdx { get; set; }
         public int IdxOverall { get; set; }
         public OneHorizontalRelationship RelationshipToRight { get; set; }
         public OneVerticalRelationship RelationshipToUnder { get; set; }
@@ -54,16 +52,24 @@ namespace PuzzleSolverForNeighbors
         public int KnownValue
         {
             get { return AllowedValues.First(); }
+            set
+            {
+                AllowedValues.Clear();
+                AllowedValues.Add(value);
+                ControlAssociatedTextBox.Text = value.ToString();
+
+            }
         }
+
+
 
         #endregion
 
         #region Constructors
 
-        public OneGridPanel(int colIdx, int rowIdx, AllBoxesManager ptrToAllBoxesManager, int maxColRowIdx)
+        public OneGridPanel(LocIdx locIdx, AllBoxesManager ptrToAllBoxesManager, int maxColRowIdx)
         {
-            ColIdx = colIdx;
-            RowIdx = rowIdx;
+            this.LocIdx = locIdx;
             PtrToAllBoxesManager = ptrToAllBoxesManager;
             this.maxColRowIdx = maxColRowIdx;
             BuildOneGridPanelControls();
@@ -79,8 +85,8 @@ namespace PuzzleSolverForNeighbors
             //and they are neighbors in this case
 
             List<int> numsToRemove = AllowedValues
-                .Where(x => gridPanelUnder != null)
-                .Where(x => !gridPanelUnder.HasNeighborValueFor(x))
+                .Where(x => GridPanelUnder != null)
+                .Where(x => !GridPanelUnder.HasNeighborValueFor(x))
                 .ToList();
 
             if (numsToRemove.Any())
@@ -88,15 +94,15 @@ namespace PuzzleSolverForNeighbors
                 numsToRemove.ForEach(removeSingleValue);
             }
 
-            if (gridPanelUnder != null)
+            if (GridPanelUnder != null)
             {
-                numsToRemove = gridPanelUnder.AllowedValues
+                numsToRemove = GridPanelUnder.AllowedValues
                 .Where(x => !HasNeighborValueFor(x))
                 .ToList();
 
                 if (numsToRemove.Any())
                 {
-                    numsToRemove.ForEach(gridPanelUnder.removeSingleValue);
+                    numsToRemove.ForEach(GridPanelUnder.removeSingleValue);
                 }
             }
 
@@ -133,8 +139,8 @@ namespace PuzzleSolverForNeighbors
         }
         public void FindRightAndBelow()
         {
-            gridPanelUnder = PtrToAllBoxesManager.GetBoxUnder(this);
-            gridPanelRight = PtrToAllBoxesManager.GetBoxToTheRight(this);
+            GridPanelUnder = PtrToAllBoxesManager.GetBoxUnder(this);
+            GridPanelRight = PtrToAllBoxesManager.GetBoxToTheRight(this);
         }
 
         public bool HasNeighborValueFor(int oneAllowedValue)
@@ -149,9 +155,9 @@ namespace PuzzleSolverForNeighbors
             AllowedValues = new List<int>();
 
 
-            if (!string.IsNullOrEmpty(controlAssociatedTextBox.Text))
+            if (!string.IsNullOrEmpty(ControlAssociatedTextBox.Text))
             {
-                AllowedValues.Add(Convert.ToInt32(controlAssociatedTextBox.Text));
+                AllowedValues.Add(Convert.ToInt32(ControlAssociatedTextBox.Text));
             }
             else
             {
@@ -170,10 +176,23 @@ namespace PuzzleSolverForNeighbors
         }
         public void RefreshEntireBox()
         {
+            UpdateTextBoxForKnownValues();
+
             UpdateAllowedValuesLabel();
+
             RelationshipToRight.UpdateLabel();
             RelationshipToUnder.UpdateLabel();
-            setDisplayOfKnownValue();
+
+
+            ControlAssociatedTextBox.Refresh();
+            ControlAssociatedTextBox.Update();
+
+
+            controlElligibleValuesLabel.Invalidate();
+            controlElligibleValuesLabel.Update();
+            controlElligibleValuesLabel.Refresh();
+
+
         }
 
         public void SetToDefault()
@@ -182,8 +201,7 @@ namespace PuzzleSolverForNeighbors
             RelationshipToUnder.IsNeighbor = false;
             RelationshipToRight.IsNeighbor = false;
 
-            controlAssociatedTextBox.Text = string.Empty;
-            RefreshEntireBox();
+            ControlAssociatedTextBox.Text = string.Empty;
 
         }
         public void RelationshipCompare()
@@ -217,32 +235,31 @@ namespace PuzzleSolverForNeighbors
             AllowedValues.ForEach(x => text += x);
             controlElligibleValuesLabel.Text = text;
 
-            controlElligibleValuesLabel.Invalidate();
-            controlElligibleValuesLabel.Update();
-            controlElligibleValuesLabel.Refresh();
+
+            // RefreshEntireBox();
         }
 
         private void downIsNotNeighbor()
         {
-            if (gridPanelUnder != null && gridPanelUnder.AllowedValues.Count == 1 && AllowedValues.Count != 1)
+            if (GridPanelUnder != null && GridPanelUnder.AllowedValues.Count == 1 && AllowedValues.Count != 1)
             {
-                RemoveNonNeighborValue(gridPanelUnder.AllowedValues.First());
+                RemoveNonNeighborValue(GridPanelUnder.AllowedValues.First());
                 UpdateAllowedValuesLabel();
             }
 
 
-            if (gridPanelUnder != null && AllowedValues.Count == 1 && gridPanelUnder.AllowedValues.Count != 1)
+            if (GridPanelUnder != null && AllowedValues.Count == 1 && GridPanelUnder.AllowedValues.Count != 1)
             {
-                gridPanelUnder.RemoveNonNeighborValue(AllowedValues.First());
-                gridPanelUnder.UpdateAllowedValuesLabel();
+                GridPanelUnder.RemoveNonNeighborValue(AllowedValues.First());
+                GridPanelUnder.UpdateAllowedValuesLabel();
             }
         }
 
         private void eventTextChanged(object sender, EventArgs e)
         {
-            if (controlAssociatedTextBox.Text == 0.ToString())
+            if (ControlAssociatedTextBox.Text == 0.ToString())
             {
-                controlAssociatedTextBox.Text = string.Empty;
+                ControlAssociatedTextBox.Text = string.Empty;
             }
         }
 
@@ -264,17 +281,17 @@ namespace PuzzleSolverForNeighbors
         {
             if (!RelationshipToRight.IsNeighbor)
             {
-                if (gridPanelRight != null && gridPanelRight.ValueIsKnown && !ValueIsKnown)
+                if (GridPanelRight != null && GridPanelRight.ValueIsKnown && !ValueIsKnown)
                 {
-                    RemoveNonNeighborValue(gridPanelRight.AllowedValues.First());
+                    RemoveNonNeighborValue(GridPanelRight.AllowedValues.First());
                     UpdateAllowedValuesLabel();
                 }
 
 
-                if (ValueIsKnown && gridPanelRight != null && !gridPanelRight.ValueIsKnown)
+                if (ValueIsKnown && GridPanelRight != null && !GridPanelRight.ValueIsKnown)
                 {
-                    gridPanelRight.RemoveNonNeighborValue(AllowedValues.First());
-                    gridPanelRight.UpdateAllowedValuesLabel();
+                    GridPanelRight.RemoveNonNeighborValue(AllowedValues.First());
+                    GridPanelRight.UpdateAllowedValuesLabel();
                 }
             }
             else
@@ -283,22 +300,23 @@ namespace PuzzleSolverForNeighbors
             }
         }
 
-        private void setDisplayOfKnownValue()
+        public void UpdateTextBoxForKnownValues()
         {
             if (ValueIsKnown)
             {
-                controlAssociatedTextBox.Text = KnownValue.ToString();
-                controlAssociatedTextBox.Refresh();
-                controlAssociatedTextBox.Update();
+                ControlAssociatedTextBox.Text = KnownValue.ToString();
+
             }
         }
+
+
         private void removeSingleValue(int numToRemove)
         {
             if (!ValueIsKnown)
             {
                 AllowedValues.Remove(numToRemove);
-                UpdateAllowedValuesLabel();
-                setDisplayOfKnownValue();
+
+
 
             }
         }
